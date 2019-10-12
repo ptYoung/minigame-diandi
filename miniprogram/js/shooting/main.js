@@ -6,8 +6,16 @@ import Enemy from './npc/enemy.js'
 import DataBus from '../databus.js'
 
 let ctx = canvas.getContext('2d');
-
 let databus = new DataBus();
+
+// wx.cloud.init({
+//     // env 参数说明：
+//     //   env 参数决定接下来小程序发起的云开发调用（wx.cloud.xxx）会默认请求到哪个云环境的资源
+//     //   此处请填入环境 ID, 环境 ID 可打开云控制台查看
+//     //   如不填则使用默认环境（第一个创建的环境）
+//     // env: 'my-env-id',
+// })
+// const db = wx.cloud.database()
 
 //  开放数据域
 let openDataContext = wx.getOpenDataContext();
@@ -17,16 +25,6 @@ let sharedCanvas = openDataContext.canvas;
 const FACTOR = 3 / 4;
 sharedCanvas.width = canvas.width * FACTOR;
 sharedCanvas.height = canvas.height * FACTOR;
-
-// wx.getUserInteractiveStorage({
-//     keyList: ['1'],
-//     success: res => {
-//         console.log(res);
-//     },
-//     fail: err => {
-//         console.error(err);
-//     }
-// })
 
 export default class Main {
     constructor() {
@@ -42,7 +40,51 @@ export default class Main {
         });
         //  启动游戏
         this.restart();
+        //  登录
+        // this.login()
+
+        wx.getUserInteractiveStorage({
+            keyList: ['1'],
+            success: res => {
+                console.log(res);
+            },
+            fail: err => {
+                console.error(err);
+            }
+        })
     }
+
+    // login() {
+    //     // 获取 openid
+    //     wx.cloud.callFunction({
+    //         name: 'login',
+    //         success: res => {
+    //             window.openid = res.result.openid
+    //             this.prefetchHighScore()
+    //         },
+    //         fail: err => {
+    //             console.error('get openid failed with error', err)
+    //         }
+    //     })
+    // }
+
+    // prefetchHighScore() {
+    //     // 预取历史最高分
+    //     db.collection('score').doc(`${window.openid}-score`).get()
+    //         .then(res => {
+    //             if (this.personalHighScore) {
+    //                 if (res.data.max > this.personalHighScore) {
+    //                     this.personalHighScore = res.data.max
+    //                 }
+    //             } else {
+    //                 this.personalHighScore = res.data.max
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error('db get score catch error', err)
+    //             this.prefetchHighScoreFailed = true
+    //         })
+    // }
 
     restart() {
         databus.reset();
@@ -58,9 +100,9 @@ export default class Main {
         this.bindLoop = this.loop.bind(this);
         this.cleanUp = false;
 
-        ////    为什么要清除上一帧动画 
+        ////    清除上一帧动画 
         window.cancelAnimationFrame(this.aniId);
-        ////    这样就可以开始帧循环，那要如何退出呢？
+        ////    开始帧循环
         this.aniId = window.requestAnimationFrame(
             this.bindLoop,
             canvas
@@ -125,6 +167,61 @@ export default class Main {
             }
         }
     }
+
+    // collisionDetection() {
+    //     let that = this
+
+    //     databus.bullets.forEach((bullet) => {
+    //         for (let i = 0, il = databus.enemys.length; i < il; i++) {
+    //             let enemy = databus.enemys[i]
+
+    //             if (!enemy.isPlaying && enemy.isCollideWith(bullet)) {
+    //                 enemy.playAnimation()
+    //                 that.music.playExplosion()
+
+    //                 bullet.visible = false
+    //                 databus.score += 1
+
+    //                 break
+    //             }
+    //         }
+    //     })
+
+    //     for (let i = 0, il = databus.enemys.length; i < il; i++) {
+    //         let enemy = databus.enemys[i]
+
+    //         if (this.player.isCollideWith(enemy)) {
+    //             databus.gameOver = true
+
+    //             // 获取历史高分
+    //             if (this.personalHighScore) {
+    //                 if (databus.score > this.personalHighScore) {
+    //                     this.personalHighScore = databus.score
+    //                 }
+    //             }
+
+    //             // 上传结果
+    //             // 调用 uploadScore 云函数
+    //             wx.cloud.callFunction({
+    //                 name: 'uploadScore',
+    //                 // data 字段的值为传入云函数的第一个参数 event
+    //                 data: {
+    //                     score: databus.score
+    //                 },
+    //                 success: res => {
+    //                     if (this.prefetchHighScoreFailed) {
+    //                         this.prefetchHighScore()
+    //                     }
+    //                 },
+    //                 fail: err => {
+    //                     console.error('upload score failed', err)
+    //                 }
+    //             })
+
+    //             break
+    //         }
+    //     }
+    // }
 
     /**
      * GameInfo类 显示排行榜

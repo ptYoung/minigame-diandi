@@ -16,7 +16,6 @@ const WINDOW_WIDTH = canvas.width;
 const WINDOW_HEIGTH = canvas.height;
 const RATIO_WIDTH = WINDOW_WIDTH / COURT_IMG_WIDTH;
 const RATIO_HEIGHT = WINDOW_HEIGTH / COURT_IMG_HEIGHT;
-console.log(WINDOW_WIDTH, WINDOW_HEIGTH)
 
 /**
  *  球员

@@ -6,5 +6,4 @@ import DataBus from './js/databus.js'
 
 let databus = new DataBus();
 
-    databus.mainpage = databus.pool.getItemByClass('mainpage', MainPage)
-// new Index()
+databus.mainpage = databus.pool.getItemByClass('mainpage', MainPage)

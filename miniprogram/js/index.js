@@ -5,7 +5,6 @@ import Background from './base/background.js'
 import DataBus from './databus.js'
 
 let ctx = canvas.getContext('2d');
-
 let databus = new DataBus();
 
 export default class Index {

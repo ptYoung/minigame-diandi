@@ -25,6 +25,16 @@ const BTN_CLOSE_HEIGHT = 15;
 const BTN_CLOSE_TOP = 76;
 const BTN_CLOSE_LEFT = 395;
 
+wx.getUserInteractiveStorage({
+    keyList: ['1'],
+    success: res => {
+        console.log(res);
+    },
+    fail: err => {
+        console.error(err);
+    }
+})
+
 // wx.modifyFriendInteractiveStorage({
 //     key: '1',
 //     opNum: 1,
