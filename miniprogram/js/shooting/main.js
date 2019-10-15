@@ -8,15 +8,6 @@ import DataBus from '../databus.js'
 let ctx = canvas.getContext('2d');
 let databus = new DataBus();
 
-// wx.cloud.init({
-//     // env 参数说明：
-//     //   env 参数决定接下来小程序发起的云开发调用（wx.cloud.xxx）会默认请求到哪个云环境的资源
-//     //   此处请填入环境 ID, 环境 ID 可打开云控制台查看
-//     //   如不填则使用默认环境（第一个创建的环境）
-//     // env: 'my-env-id',
-// })
-// const db = wx.cloud.database()
-
 //  开放数据域
 let openDataContext = wx.getOpenDataContext();
 //  开放数据域不能向主域发送消息，需要将业务场景绘制到sharedCanvas上，再在主域上渲染sharedCanvas
@@ -43,15 +34,7 @@ export default class Main {
         //  登录
         // this.login()
 
-        wx.getUserInteractiveStorage({
-            keyList: ['1'],
-            success: res => {
-                console.log(res);
-            },
-            fail: err => {
-                console.error(err);
-            }
-        })
+        
     }
 
     // login() {

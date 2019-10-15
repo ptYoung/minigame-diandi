@@ -6,8 +6,43 @@ import Rotary from './elements/rotary.js'
 import DataBus from '../databus.js'
 
 let ctx = canvas.getContext('2d');
-
 let databus = new DataBus();
+
+//  点赞助力 KEY
+const KEY_LIKE = "1";
+
+// wx.getUserInteractiveStorage({
+//     keyList: [KEY_LIKE],
+//     success: res => {
+//         console.log(res);
+//         wx.cloud.callFunction({
+//             name: "getUserInteractiveStorage",
+//             data: {
+//                 interactive: wx.cloud.CloudID(res.cloudID),
+//                 obj: {
+//                     dump: wx.cloud.CloudID(res.cloudID)
+//                 }
+//             },
+//             success: res => {
+//                 console.log(res);
+//             },
+//             fail: err => {
+//                 console.error(err)
+//             }
+//         })
+//     },
+//     fail: err => {
+//         console.error(err);
+//     }
+// })
+
+//  开放数据域
+let openDataContext = wx.getOpenDataContext();
+//  开放数据域不能向主域发送消息，需要将业务场景绘制到sharedCanvas上，再在主域上渲染sharedCanvas
+let sharedCanvas = openDataContext.canvas;
+
+// 排行榜 KEY
+const RANK_SCORE = "RANK_SCORE";
 
 export default class Main {
     constructor() {
@@ -24,6 +59,23 @@ export default class Main {
         canvas.addEventListener('touchstart', this.touchStartEventHandler);
         //  启动游戏
         this.init();
+        // openDataContext.postMessage({
+        //     msgType: "LIKE",
+        //     toOpenid: "oK1185SQJt0gTgmNwy4knHGQsVvE"
+        // });
+
+        // wx.cloud.callFunction({
+        //     name: "setUserInteractiveData",
+        //     data: {
+        //         dump: Date.now()
+        //     },
+        //     success: res => {
+        //         console.log(res);
+        //     },
+        //     fail: err => {
+        //         console.error(err)
+        //     }
+        // })
     }
 
     init() {

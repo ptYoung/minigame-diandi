@@ -6,8 +6,11 @@ let sharedCanvasContext = sharedCanvas.getContext('2d');
 let atlas = wx.createImage();
 atlas.src = 'images/Common.png';
 
-// 排行榜 KEY
-const RANK_SCORE = "RANK_SCORE";
+//  排行榜 KEY
+const KEY_RANK_SCORE = "RANK_SCORE";
+//  点赞助力 KEY
+const KEY_LIKE = "1";
+
 /**
  * 排行榜设计要素
  */
@@ -24,29 +27,6 @@ const BTN_CLOSE_WIDTH = 15;
 const BTN_CLOSE_HEIGHT = 15;
 const BTN_CLOSE_TOP = 76;
 const BTN_CLOSE_LEFT = 395;
-
-wx.getUserInteractiveStorage({
-    keyList: ['1'],
-    success: res => {
-        console.log(res);
-    },
-    fail: err => {
-        console.error(err);
-    }
-})
-
-// wx.modifyFriendInteractiveStorage({
-//     key: '1',
-//     opNum: 1,
-//     operation: 'add',
-//     toUser: 'oW-3q5kpE6vI27rGdHO1tRJ5my9Y',
-//     success: res => {
-//         console.log(res);
-//     },
-//     fail: err => {
-//         console.error(err);
-//     }
-// })
 
 class RankList {
     constructor() {
@@ -74,13 +54,6 @@ class RankList {
         wx.offTouchEnd(this.touchEndEventHandler);
     }
 
-    /**
-     * 绘制背景
-     */
-    drawBackground() {
-        sharedCanvasContext.fillStyle = '#000000';
-        sharedCanvasContext.fillRect(0, 0, sharedCanvas.width, sharedCanvas.height);
-    }
 
     /**
      * 收到主屏发来的通知
@@ -89,16 +62,23 @@ class RankList {
         wx.onMessage(data => {
             console.log(data);
             if (data.msgType === "GAME_OVER") {
+                //  游戏结束
                 this.saveUserGameScore(data);
             } else if (data.msgType === "SHOW_RANKLIST") {
+                //  排行榜
                 if (!this.isShown) {
                     this.isShown = true;
                     this.getFriendsGameScores();
                 }
+            } else if (data.msgType === "LIKE") {
+                //  点赞助力
+                // this.likeToMyFriend(data.toOpenid, data.opNum, data.operation);
             } else if (data.msgType === "SHARED_CANVAS_OFFSET") {
+                //  SharedCanvas 大小设置
                 this.offsetX = data.offsetX;
                 this.offsetY = data.offsetY;
             } else if (data.msgType === "TERMINATE") {
+                //  销毁SharedCanvas
                 this.destroy();
             }
         })
@@ -115,6 +95,14 @@ class RankList {
         const clientX = e.changedTouches[0].clientX;
         const clientY = e.changedTouches[0].clientY;
         this.closeRankList(clientX, clientY);
+    }
+
+    /**
+     * 绘制排行榜背景
+     */
+    drawBackground() {
+        sharedCanvasContext.fillStyle = '#000000';
+        sharedCanvasContext.fillRect(0, 0, sharedCanvas.width, sharedCanvas.height);
     }
 
     /**
@@ -167,6 +155,9 @@ class RankList {
         })
     }
 
+    /**
+     * 关闭排行榜
+     */
     closeRankList(x, y) {
         if (x >= this.offsetX + sharedCanvas.width - BTN_CLOSE_WIDTH + RIGHT_BASE_LINE_X &&
             x <= this.offsetX + sharedCanvas.width + RIGHT_BASE_LINE_X + GAP_X &&
@@ -183,7 +174,7 @@ class RankList {
     saveUserGameScore(data) {
         wx.setUserCloudStorage({
             KVDataList: [{
-                key: RANK_SCORE,
+                key: KEY_RANK_SCORE,
                 value: JSON.stringify({
                     "wxgame": {
                         "score": data.score,
@@ -205,8 +196,9 @@ class RankList {
      * 获取好友游戏分数
      */
     getFriendsGameScores() {
+        //  拉取当前用户所有同玩好友的托管数据。该接口只可在开放数据域下使用
         wx.getFriendCloudStorage({
-            keyList: [RANK_SCORE],
+            keyList: [KEY_RANK_SCORE],
             success: res => {
                 this.drawRankList(res.data);
             },
@@ -216,6 +208,95 @@ class RankList {
         })
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     *  点赞助力 
+     */
+    likeBtnClicked(toOpenid, opNum = 1, operation = 'add') {
+        //  修改好友的互动型托管数据，该接口只可在开放数据域下使用
+        //  用户确认内容配置： 
+        //  文案通过 game.json 的 `modifyFriendInteractiveStorageConfirmWording' 字段配置
+        //  配置内容可包含 nickname 变量，用 ${nickname} 表示，实际调用时会被替换成好友的昵称
+        wx.modifyFriendInteractiveStorage({
+            key: KEY_LIKE,
+            //  opNum: 需要修改的数值，目前只能为 1
+            opNum: opNum,
+            //  operation: 修改类型，目前只能为 add
+            operation: operation,
+            // toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
+            toUser: toOpenid,
+            success: res => {
+                console.log(res);
+            },
+            fail: err => {
+                console.error(err);
+            }
+        })
+    }
+
+    /**
+     *  显示点击
+     */
+    showLikeToMyFriendPanel() {
+        wx.getFriendCloudStorage({
+            keyList: [new Date().toDateString()],
+            success: res => {
+                console.log(res);
+                this.draw();
+            },
+            fail: err => {
+                console.error(err)
+            }
+        })
+    }
+
+    draw() {
+
+    }
+
 }
 
 new RankList().init()
+
+// wx.getFriendCloudStorage({
+//     keyList: [new Date().toDateString()],
+//     success: res => {
+//         console.log(res);
+//         // this.drawRankList(res.data);
+//     },
+//     fail: err => {
+//         console.error(err)
+//     }
+// })
+
+// wx.getUserCloudStorage({
+//     keyList: [new Date().toDateString()],
+//     success: res => {
+//         console.log(res);
+//         // this.drawRankList(res.data);
+//     },
+//     fail: err => {
+//         console.error(err)
+//     }
+// })
+
+// console.log(new Date().toDateString())
+
+// wx.modifyFriendInteractiveStorage({
+//     key: KEY_LIKE,
+//     //  opNum: 需要修改的数值，目前只能为 1
+//     opNum: 1,
+//     //  operation: 修改类型，目前只能为 add
+//     operation: 'add',
+//     toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
+//     // toUser: toOpenid,
+//     success: res => {
+//         console.log(res);
+//     },
+//     fail: err => {
+//         console.error(err);
+//     }
+// })
