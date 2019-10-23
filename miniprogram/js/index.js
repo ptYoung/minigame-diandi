@@ -7,29 +7,48 @@ import DataBus from './databus.js'
 let ctx = canvas.getContext('2d');
 let databus = new DataBus();
 
+//  开放数据域
+let openDataContext = wx.getOpenDataContext();
+//  开放数据域不能向主域发送消息，需要将业务场景绘制到sharedCanvas上，再在主域上渲染sharedCanvas
+let sharedCanvas = openDataContext.canvas;
+
 export default class Index {
     constructor() {
         //  维护当前requestAnimationFrame的id
         this.aniId = 0;
-
-        console.log(wx.getLaunchOptionsSync())
-
-        // wx.showShareMenu({
-        //     withShareTicket: true,
-        //     success: res => {
-        //         console.log(res);
-        //     }
-        // })
-
-        // wx.onShareAppMessage(() => {
-        //     return {
-        //         title: "营销小游戏",
-        //         imageUrl: "images/bg.png",
-        //         query: "user=kyle"
-        //     }
-        // })
-
+        //  登录 
+        this.login();
+        openDataContext.postMessage({
+            msgType: "SHARED_CANVAS_OFFSET",
+            offsetX: (canvas.width - sharedCanvas.width) / 2,
+            offsetY: (canvas.height - sharedCanvas.height) / 2
+        });
+        //  绘制
         this.restart();
+    }
+
+    /**
+     *  登录
+     */
+    login() {
+        // 获取 openid
+        wx.cloud.callFunction({
+            name: 'login',
+            success: res => {
+                // console.log(res);
+                window.openid = res.result.openid
+                //  获取场景值 
+                const scenario = wx.getLaunchOptionsSync();
+                console.log(scenario)
+                if (scenario.scene === 1007 && scenario.query.user) {
+                    this.showLikeFriendPannel(scenario.query.user);
+                }
+
+            },
+            fail: err => {
+                console.error('get openid failed with error', err)
+            }
+        })
     }
 
     /**
@@ -68,6 +87,20 @@ export default class Index {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    /**
+     *  显示点赞助力页
+     */
+    showLikeFriendPannel(user) {
+        //  发送消息至开放数据域，显示当前用户被点赞的历史记录
+        openDataContext.postMessage({
+            msgType: "LIKE",
+            likeOpenid: user
+        });
+    }
+
+    /**
+     * 进入不同的游戏关卡
+     */
     barrier(number) {
         this.end();
         if (number === 1) {
@@ -112,6 +145,12 @@ export default class Index {
         ctx.fillText('2', 100, 100)
 
         ctx.fillText('3', 150, 100)
+
+        ctx.drawImage(sharedCanvas,
+            (canvas.width - sharedCanvas.width) / 2,
+            (canvas.height - sharedCanvas.height) / 2,
+            sharedCanvas.width,
+            sharedCanvas.height);
 
         // newCanvasContext.drawImage(
         //     da, -IMG_DA_ZHUANG_PAN_WIDTH / 2, -IMG_DA_ZHUANG_PAN_HEIGTH / 2,

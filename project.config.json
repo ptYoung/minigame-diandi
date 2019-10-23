@@ -37,8 +37,22 @@
 			"current": -1,
 			"list": []
 		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
 		"game": {
-			"currentL": -1,
+			"list": [
+				{
+					"id": 0,
+					"name": "点赞助力",
+					"query": "user=oK1185SQJt0gTgmNwy4knHGQsVvE",
+					"scene": "1007"
+				}
+			]
+		},
+		"gamePlugin": {
+			"current": -1,
 			"list": []
 		},
 		"miniprogram": {

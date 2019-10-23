@@ -72,7 +72,10 @@ class RankList {
                 }
             } else if (data.msgType === "LIKE") {
                 //  点赞助力
+                console.log("RECEIVE MSG >>> SELF OPENID: ", data.likeOpenid);
+                window.likeOpenid = data.likeOpenid;
                 // this.likeToMyFriend(data.toOpenid, data.opNum, data.operation);
+                this.showLikeToMyFriendPanel(data.likeOpenid);
             } else if (data.msgType === "SHARED_CANVAS_OFFSET") {
                 //  SharedCanvas 大小设置
                 this.offsetX = data.offsetX;
@@ -95,6 +98,7 @@ class RankList {
         const clientX = e.changedTouches[0].clientX;
         const clientY = e.changedTouches[0].clientY;
         this.closeRankList(clientX, clientY);
+        this.likeBtnClicked(clientX, clientY);
     }
 
     /**
@@ -215,37 +219,47 @@ class RankList {
     /**
      *  点赞助力 
      */
-    likeBtnClicked(toOpenid, opNum = 1, operation = 'add') {
-        //  修改好友的互动型托管数据，该接口只可在开放数据域下使用
-        //  用户确认内容配置： 
-        //  文案通过 game.json 的 `modifyFriendInteractiveStorageConfirmWording' 字段配置
-        //  配置内容可包含 nickname 变量，用 ${nickname} 表示，实际调用时会被替换成好友的昵称
-        wx.modifyFriendInteractiveStorage({
-            key: KEY_LIKE,
-            //  opNum: 需要修改的数值，目前只能为 1
-            opNum: opNum,
-            //  operation: 修改类型，目前只能为 add
-            operation: operation,
-            // toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
-            toUser: toOpenid,
-            success: res => {
-                console.log(res);
-            },
-            fail: err => {
-                console.error(err);
-            }
-        })
+    likeBtnClicked(x, y) {
+        if (x >= this.offsetX + sharedCanvas.width - BTN_CLOSE_WIDTH + RIGHT_BASE_LINE_X &&
+            x <= this.offsetX + sharedCanvas.width + RIGHT_BASE_LINE_X + GAP_X &&
+            y >= this.offsetY + HEAD_BASE_LINE_Y - GAP_Y &&
+            y <= this.offsetY + HEAD_BASE_LINE_Y + BTN_CLOSE_HEIGHT + GAP_Y) {
+            //  修改好友的互动型托管数据，该接口只可在开放数据域下使用
+            //  用户确认内容配置： 
+            //  文案通过 game.json 的 `modifyFriendInteractiveStorageConfirmWording' 字段配置
+            //  配置内容可包含 nickname 变量，用 ${nickname} 表示，实际调用时会被替换成好友的昵称
+            wx.modifyFriendInteractiveStorage({
+                key: KEY_LIKE,
+                //  opNum: 需要修改的数值，目前只能为 1
+                opNum: 1,
+                //  operation: 修改类型，目前只能为 add
+                operation: 'add',
+                // toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
+                toUser: window.likeOpenid,
+                success: res => {
+                    console.log(res);
+                },
+                fail: err => {
+                    console.error(err);
+                }
+            })
+        }
     }
 
     /**
      *  显示点击
      */
-    showLikeToMyFriendPanel() {
+    showLikeToMyFriendPanel(selfOpenid) {
         wx.getFriendCloudStorage({
             keyList: [new Date().toDateString()],
             success: res => {
                 console.log(res);
-                this.draw();
+
+                const self = res.data.find(item => item.openid === selfOpenid);
+                const myReceiveRecords = self && self.KVDataList.length ? self.KVDataList.find(record => record.key === new Date().toDateString()) : null;
+                const myLikeArray = myReceiveRecords && myReceiveRecords.value ? JSON.parse(myReceiveRecords.value).receiveRecords : [];
+
+                this.draw(myLikeArray);
             },
             fail: err => {
                 console.error(err)
@@ -253,8 +267,49 @@ class RankList {
         })
     }
 
-    draw() {
+    draw(data) {
+        //  绘制背景
+        this.drawBackground();
+        //  添加触摸事件侦听
+        this.addTouchEventListener();
 
+        data.forEach((item, index) => {
+            console.log(item);
+            sharedCanvasContext.fillStyle = FONT_FILL_STYLE;
+            sharedCanvasContext.font = '13px Arial';
+            sharedCanvasContext.fillText(
+                item.nickname,
+                LEFT_BASE_LINE_X + AVATAR_WIDTH + GAP_X,
+                CONTENT_BASE_LINE_Y + (index * (AVATAR_HEIGHT + GAP_Y)) + AVATAR_HEIGHT * 3 / 5
+            );
+
+            Utils.loadImage(index, item.avatarUrl).then(data => {
+                // sharedCanvasContext.arc(10 + 25, 90 + 25, 25, 0, 2 * Math.PI);
+                // sharedCanvas.clip()
+                sharedCanvasContext.drawImage(
+                    data.image,
+                    LEFT_BASE_LINE_X,
+                    CONTENT_BASE_LINE_Y + (data.index * (AVATAR_HEIGHT + GAP_Y)),
+                    AVATAR_WIDTH,
+                    AVATAR_HEIGHT);
+            })
+
+            sharedCanvasContext.drawImage(
+                atlas,
+                120, 6, 39, 24,
+                sharedCanvas.width / 2 - 60,
+                sharedCanvas.height / 2 - 100 + 180,
+                120, 40
+            )
+
+            sharedCanvasContext.drawImage(
+                atlas,
+                BTN_CLOSE_LEFT, BTN_CLOSE_TOP, BTN_CLOSE_WIDTH, BTN_CLOSE_HEIGHT,
+                sharedCanvas.width - BTN_CLOSE_WIDTH + RIGHT_BASE_LINE_X,
+                HEAD_BASE_LINE_Y,
+                BTN_CLOSE_WIDTH, BTN_CLOSE_HEIGHT
+            )
+        })
     }
 
 }
@@ -291,8 +346,8 @@ new RankList().init()
 //     opNum: 1,
 //     //  operation: 修改类型，目前只能为 add
 //     operation: 'add',
-//     toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
 //     // toUser: toOpenid,
+//     toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
 //     success: res => {
 //         console.log(res);
 //     },

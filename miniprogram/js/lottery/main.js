@@ -36,11 +36,6 @@ const KEY_LIKE = "1";
 //     }
 // })
 
-//  开放数据域
-let openDataContext = wx.getOpenDataContext();
-//  开放数据域不能向主域发送消息，需要将业务场景绘制到sharedCanvas上，再在主域上渲染sharedCanvas
-let sharedCanvas = openDataContext.canvas;
-
 // 排行榜 KEY
 const RANK_SCORE = "RANK_SCORE";
 
@@ -59,23 +54,6 @@ export default class Main {
         canvas.addEventListener('touchstart', this.touchStartEventHandler);
         //  启动游戏
         this.init();
-        // openDataContext.postMessage({
-        //     msgType: "LIKE",
-        //     toOpenid: "oK1185SQJt0gTgmNwy4knHGQsVvE"
-        // });
-
-        // wx.cloud.callFunction({
-        //     name: "setUserInteractiveData",
-        //     data: {
-        //         dump: Date.now()
-        //     },
-        //     success: res => {
-        //         console.log(res);
-        //     },
-        //     fail: err => {
-        //         console.error(err)
-        //     }
-        // })
     }
 
     init() {
@@ -119,14 +97,15 @@ export default class Main {
     }
 
     /**
-     * 邀请好友
+     * 邀请好友点赞助力
+     * 带上自己的openid
      */
     inviteFriend() {
-        console.log('==== invite friend ====', Helper.getNonceStr(32));
+        console.log('==== invite friend ====', window.openid);
         wx.shareAppMessage({
             title: "小游戏转发测试",
             imageUrl: "images/bg.png",
-            query: "user=kyle"
+            query: "user=" + window.openid
         })
     }
 
@@ -160,6 +139,9 @@ export default class Main {
         )
     }
 
+    /**
+     *  数据更新
+     */
     update() {
         if (databus.gameOver)
             return;
@@ -167,17 +149,25 @@ export default class Main {
         this.rotary.update(this.newCanvasContext);
     }
 
+    /**
+     *  重绘
+     */
     render() {
+        //  绘制背景
         this.bg.render(ctx);
+        //  绘制大转盘
+        this.rotary.render(this.newCanvasContext);
+        ctx.drawImage(this.newCanvas, 0, 0);
+        //  绘制转盘指针
+        this.pointer.render(ctx);
+        //  绘制附加功能
         this.gameinfo.renderInviteBtnArea(ctx);
         this.gameinfo.renderBackHome(ctx);
-        this.rotary.render(this.newCanvasContext);
-
-        ctx.drawImage(this.newCanvas, 0, 0);
-
-        this.pointer.render(ctx);
     }
 
+    /**
+     *  帧循环
+     */
     loop() {
         databus.frame++;
 

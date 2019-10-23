@@ -33,23 +33,8 @@ export default class Main {
         this.restart();
         //  登录
         // this.login()
-
         
     }
-
-    // login() {
-    //     // 获取 openid
-    //     wx.cloud.callFunction({
-    //         name: 'login',
-    //         success: res => {
-    //             window.openid = res.result.openid
-    //             this.prefetchHighScore()
-    //         },
-    //         fail: err => {
-    //             console.error('get openid failed with error', err)
-    //         }
-    //     })
-    // }
 
     // prefetchHighScore() {
     //     // 预取历史最高分
