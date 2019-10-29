@@ -24,16 +24,15 @@ export default class Main {
         //  添加对 touchstart 事件的响应句柄
         this.touchStartEventHandler = this.touchEventHandler.bind(this);
         canvas.addEventListener('touchstart', this.touchStartEventHandler);
+        //  启动游戏
+        this.restart();
+        //  初始化开放数据域sharedCanvas
         openDataContext.postMessage({
-            msgType: "SHARED_CANVAS_OFFSET",
+            msgType: "INIT",
+            panelClass: "Ranking",
             offsetX: (canvas.width - sharedCanvas.width) / 2,
             offsetY: (canvas.height - sharedCanvas.height) / 2
         });
-        //  启动游戏
-        this.restart();
-        //  登录
-        // this.login()
-        
     }
 
     // prefetchHighScore() {
@@ -67,6 +66,8 @@ export default class Main {
         this.gameinfo = new GameInfo();
         this.bindLoop = this.loop.bind(this);
         this.cleanUp = false;
+
+        this.music.playBgm();
 
         ////    清除上一帧动画 
         window.cancelAnimationFrame(this.aniId);
@@ -196,7 +197,8 @@ export default class Main {
      */
     openRankList() {
         openDataContext.postMessage({
-            msgType: "SHOW_RANKLIST"
+            msgType: "OPEN",
+            panelClass: "Ranking"
         });
     }
 
@@ -269,7 +271,7 @@ export default class Main {
         this.bg.render(ctx);
         this.gameinfo.renderGameScore(ctx, databus.score);
         this.gameinfo.renderBackHome(ctx);
-        // this.gameinfo.renderAccelerometer(ctx, databus.accelerometer)
+        this.gameinfo.renderAccelerometer(ctx, databus.accelerometer)
         this.hero.drawToCanvas(ctx);
 
 

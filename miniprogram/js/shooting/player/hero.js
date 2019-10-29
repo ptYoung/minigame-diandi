@@ -23,7 +23,13 @@ export default class Player extends Sprite {
 
         instance = this;
         this.reset();
-        
+
+        wx.onAccelerometerChange(evt => {
+            console.log('==== onAccelerometerChange ====')
+            if (!this.touched) {
+                this.moveHeroOnAccelerometerChanged(evt);
+            }
+        })
     }
 
     reset() {
@@ -94,19 +100,24 @@ export default class Player extends Sprite {
         canvas.addEventListener('touchend',
             this.touchEndEventHandler = this.touchHeroHandler.bind(this));
 
-        wx.onAccelerometerChange(evt => {
-            console.log('==== onAccelerometerChange ====')
-            if (!this.touched) {
-                this.moveHeroOnAccelerometerChanged(evt);
-            }
-        })
+        // wx.onAccelerometerChange(evt => {
+        //     console.log('==== onAccelerometerChange ====')
+        //     if (!this.touched) {
+        //         this.moveHeroOnAccelerometerChanged(evt);
+        //     }
+        // })
     }
 
     destroy() {
-        console.log('==== destroy | remove event listener ====');
+        console.log('==== destroy hero | remove event listener ====');
         canvas.removeEventListener('touchstart', this.touchStartEventHandler);
         canvas.removeEventListener('touchmove', this.touchMoveEventHandler);
         canvas.removeEventListener('touchend', this.touchEndEventHandler);
+
+        // wx.offAccelerometerChange(evt => {
+        //     console.log('==== offAccelerometerChange ====')
+        //     console.log(evt);
+        // })
     }
 
     shoot() {

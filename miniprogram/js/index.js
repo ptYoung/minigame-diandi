@@ -18,11 +18,6 @@ export default class Index {
         this.aniId = 0;
         //  登录 
         this.login();
-        openDataContext.postMessage({
-            msgType: "SHARED_CANVAS_OFFSET",
-            offsetX: (canvas.width - sharedCanvas.width) / 2,
-            offsetY: (canvas.height - sharedCanvas.height) / 2
-        });
         //  绘制
         this.restart();
     }
@@ -41,9 +36,23 @@ export default class Index {
                 const scenario = wx.getLaunchOptionsSync();
                 console.log(scenario)
                 //  单人聊天会话中的小程序消息卡片点击进入的场景
-                //  显示点赞助力面板
                 if (scenario.scene === 1007 && scenario.query.user) {
-                    this.showLikeFriendPannel(scenario.query.user);
+                    //  初始化助力面板
+                    openDataContext.postMessage({
+                        msgType: "INIT",
+                        panelClass: "Liker",
+                        offsetX: (canvas.width - sharedCanvas.width) / 2,
+                        offsetY: (canvas.height - sharedCanvas.height) / 2
+                    });
+
+                    //  发送消息至开放数据域，显示当前用户被点赞的历史记录
+                    openDataContext.postMessage({
+                        msgType: "OPEN",
+                        panelClass: "Liker",
+                        offsetX: (canvas.width - sharedCanvas.width) / 2,
+                        offsetY: (canvas.height - sharedCanvas.height) / 2,
+                        likeOpenid: scenario.query.user
+                    });
                 }
 
             },
@@ -87,17 +96,6 @@ export default class Index {
         // this.music.stopBgm();
         //  清屏
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    /**
-     *  显示点赞助力页
-     */
-    showLikeFriendPannel(user) {
-        //  发送消息至开放数据域，显示当前用户被点赞的历史记录
-        openDataContext.postMessage({
-            msgType: "LIKE",
-            likeOpenid: user
-        });
     }
 
     /**

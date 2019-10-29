@@ -65,7 +65,7 @@ class Publisher {
  * 面板  -  基础类
  */
 export default class Panel extends Publisher {
-    constructor() {
+    constructor(offsetX, offsetY) {
         super();
 
         this.sharedCanvas = wx.getSharedCanvas();
@@ -75,8 +75,7 @@ export default class Panel extends Publisher {
         this.topBaseLine = 30; //  上边线偏移量
         this.contentBaseLine = 90; //  内容区域
 
-        this.atlas = wx.createImage(); //  加载所有控件图片
-        this.atlas.src = 'images/Common.png';
+        this.atlasSrc = 'images/Common.png'; //  加载所有控件图片
         this.avatarWidth = 24; //  人物头像宽度
         this.avatarHeight = 24; //  人物头像高度
         this.gapX = 5; //  X轴间隔 有效点击区域比图片略大
@@ -89,8 +88,8 @@ export default class Panel extends Publisher {
 
         this.fontFillStyle = '#ffffff'; //  字体颜色
 
-        this.offsetX = 0; //  在整个屏幕内的偏移量
-        this.offsetY = 0;
+        this.offsetX = offsetX; //  在整个屏幕内的偏移量
+        this.offsetY = offsetY;
         this.isShown = false; //  状态
     }
 
@@ -123,8 +122,6 @@ export default class Panel extends Publisher {
             clientX: clientX,
             clientY: clientY
         })
-        // this.closeRankList(clientX, clientY);
-        // this.likeBtnClicked(clientX, clientY);
     }
 
     /**
@@ -144,12 +141,13 @@ export default class Panel extends Publisher {
     closePanel(args) {
         // console.log(this);
         // console.log(args);
-        if (args.clientX >= args.self.offsetX + args.self.sharedCanvas.width - args.self.btnCloseWidth + args.self.rightBaseLine &&
-            args.clientX <= args.self.offsetX + args.self.sharedCanvas.width + args.self.rightBaseLine + args.self.gapX &&
-            args.clientY >= args.self.offsetY + args.self.topBaseLine - args.self.gapY &&
-            args.clientY <= args.self.offsetY + args.self.topBaseLine + args.self.btnCloseHeight + args.self.gapY) {
+        const that = args.self;
+        if (args.clientX >= that.offsetX + that.sharedCanvas.width - that.btnCloseWidth + that.rightBaseLine &&
+            args.clientX <= that.offsetX + that.sharedCanvas.width + that.rightBaseLine + that.gapX &&
+            args.clientY >= that.offsetY + that.topBaseLine - that.gapY &&
+            args.clientY <= that.offsetY + that.topBaseLine + that.btnCloseHeight + that.gapY) {
             console.log('=== closed ===');
-            args.self.destroy();
+            that.destroy();
         }
     }
 

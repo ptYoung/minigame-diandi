@@ -1,13 +1,33 @@
 import Panel from './panel.js'
 import Utils from './utils.js'
 
+//  点赞助力 KEY
+const KEY_LIKE = "1";
+
+let instance;
+
 /**
  *  点赞助力面板
  */
 export default class Liker extends Panel {
 
-    constructor() {
-        super();
+    constructor(offsetX, offsetY) {
+        super(offsetX, offsetY);
+
+        if (instance)
+            return instance;
+
+        instance = this;
+
+        this.btnLikeOffsetX = 120;
+        this.btnLikeOffsetY = 6;
+        this.btnLikeActualWidth = 39;
+        this.btnLikeActualHeight = 24;
+        this.btnLikeWidth = 120;
+        this.btnLikeHeight = 40;
+        this.btnLikeLeft = (this.sharedCanvas.width - this.btnLikeWidth) / 2;
+        this.btnLikeTop = this.sharedCanvas.height / 2;
+
     }
 
     /**
@@ -39,6 +59,9 @@ export default class Liker extends Panel {
     paint(data) {
         this.init();
 
+        //  侦听触屏事件
+        this.subscribe('touchend', this.btnLikeClicked);
+
         data.forEach((item, index) => {
             console.log(item);
             this.sharedCanvasContext.fillStyle = this.fontFillStyle;
@@ -58,51 +81,55 @@ export default class Liker extends Panel {
                     this.avatarHeight);
             })
 
-            this.sharedCanvasContext.drawImage(
-                this.atlas,
-                120, 6, 39, 24,
-                this.sharedCanvas.width / 2 - 60,
-                this.sharedCanvas.height / 2 - 100 + 180,
-                120, 40
-            )
+            Utils.loadImage(0, this.atlasSrc).then(data => {
+                this.sharedCanvasContext.drawImage(
+                    data.image,
+                    this.btnLikeOffsetX, this.btnLikeOffsetY, this.btnLikeActualWidth, this.btnLikeActualHeight,
+                    this.btnLikeLeft, this.btnLikeTop, this.btnLikeWidth, this.btnLikeHeight
+                )
+            });
 
-            this.sharedCanvasContext.drawImage(
-                this.atlas,
-                this.btnCloseLeft, this.btnCloseTop, this.btnCloseWidth, this.btnCloseHeight,
-                this.sharedCanvas.width - this.btnCloseWidth + this.btnCloseLeft,
-                this.topBaseLine,
-                this.btnCloseWidth, this.btnCloseHeight
-            )
+            Utils.loadImage(0, this.atlasSrc).then(data => {
+                this.sharedCanvasContext.drawImage(
+                    data.image,
+                    this.btnCloseLeft, this.btnCloseTop, this.btnCloseWidth, this.btnCloseHeight,
+                    this.sharedCanvas.width - this.btnCloseWidth + this.rightBaseLine, this.topBaseLine,
+                    this.btnCloseWidth, this.btnCloseHeight
+                )
+            });
+
         })
     }
 
     /**
      *  点赞助力 
      */
-    // likeBtnClicked(x, y) {
-    //     if (x >= this.offsetX + this.sharedCanvas.width - BTN_CLOSE_WIDTH + RIGHT_BASE_LINE_X &&
-    //         x <= this.offsetX + this.sharedCanvas.width + RIGHT_BASE_LINE_X + GAP_X &&
-    //         y >= this.offsetY + HEAD_BASE_LINE_Y - GAP_Y &&
-    //         y <= this.offsetY + HEAD_BASE_LINE_Y + BTN_CLOSE_HEIGHT + GAP_Y) {
-    //         //  修改好友的互动型托管数据，该接口只可在开放数据域下使用
-    //         //  用户确认内容配置： 
-    //         //  文案通过 game.json 的 `modifyFriendInteractiveStorageConfirmWording' 字段配置
-    //         //  配置内容可包含 nickname 变量，用 ${nickname} 表示，实际调用时会被替换成好友的昵称
-    //         wx.modifyFriendInteractiveStorage({
-    //             key: KEY_LIKE,
-    //             //  opNum: 需要修改的数值，目前只能为 1
-    //             opNum: 1,
-    //             //  operation: 修改类型，目前只能为 add
-    //             operation: 'add',
-    //             // toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
-    //             toUser: window.likeOpenid,
-    //             success: res => {
-    //                 console.log(res);
-    //             },
-    //             fail: err => {
-    //                 console.error(err);
-    //             }
-    //         })
-    //     }
-    // }
+    btnLikeClicked(args) {
+        const that = args.self;
+        
+        if (args.clientX >= that.offsetX + that.btnLikeLeft &&
+            args.clientX <= that.offsetX + that.btnLikeLeft + that.btnLikeWidth &&
+            args.clientY >= that.offsetY + that.btnLikeTop - that.gapY &&
+            args.clientY <= that.offsetY + that.btnLikeTop + that.btnLikeHeight + that.gapY) {
+            //  修改好友的互动型托管数据，该接口只可在开放数据域下使用
+            //  用户确认内容配置： 
+            //  文案通过 game.json 的 `modifyFriendInteractiveStorageConfirmWording' 字段配置
+            //  配置内容可包含 nickname 变量，用 ${nickname} 表示，实际调用时会被替换成好友的昵称
+            wx.modifyFriendInteractiveStorage({
+                key: KEY_LIKE,
+                //  opNum: 需要修改的数值，目前只能为 1
+                opNum: 1,
+                //  operation: 修改类型，目前只能为 add
+                operation: 'add',
+                // toUser: "oK1185SQJt0gTgmNwy4knHGQsVvE",
+                toUser: window.likeOpenid,
+                success: res => {
+                    console.log(res);
+                },
+                fail: err => {
+                    console.error(err);
+                }
+            })
+        }
+    }
 }
