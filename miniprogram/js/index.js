@@ -40,6 +40,8 @@ export default class Index {
                 //  获取场景值 
                 const scenario = wx.getLaunchOptionsSync();
                 console.log(scenario)
+                //  单人聊天会话中的小程序消息卡片点击进入的场景
+                //  显示点赞助力面板
                 if (scenario.scene === 1007 && scenario.query.user) {
                     this.showLikeFriendPannel(scenario.query.user);
                 }
