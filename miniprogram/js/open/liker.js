@@ -80,25 +80,24 @@ export default class Liker extends Panel {
                     this.avatarWidth,
                     this.avatarHeight);
             })
-
-            Utils.loadImage(0, this.atlasSrc).then(data => {
-                this.sharedCanvasContext.drawImage(
-                    data.image,
-                    this.btnLikeOffsetX, this.btnLikeOffsetY, this.btnLikeActualWidth, this.btnLikeActualHeight,
-                    this.btnLikeLeft, this.btnLikeTop, this.btnLikeWidth, this.btnLikeHeight
-                )
-            });
-
-            Utils.loadImage(0, this.atlasSrc).then(data => {
-                this.sharedCanvasContext.drawImage(
-                    data.image,
-                    this.btnCloseLeft, this.btnCloseTop, this.btnCloseWidth, this.btnCloseHeight,
-                    this.sharedCanvas.width - this.btnCloseWidth + this.rightBaseLine, this.topBaseLine,
-                    this.btnCloseWidth, this.btnCloseHeight
-                )
-            });
-
         })
+
+        Utils.loadImage(0, this.atlasSrc).then(data => {
+            this.sharedCanvasContext.drawImage(
+                data.image,
+                this.btnLikeOffsetX, this.btnLikeOffsetY, this.btnLikeActualWidth, this.btnLikeActualHeight,
+                this.btnLikeLeft, this.btnLikeTop, this.btnLikeWidth, this.btnLikeHeight
+            )
+        });
+
+        Utils.loadImage(0, this.atlasSrc).then(data => {
+            this.sharedCanvasContext.drawImage(
+                data.image,
+                this.btnCloseLeft, this.btnCloseTop, this.btnCloseWidth, this.btnCloseHeight,
+                this.sharedCanvas.width - this.btnCloseWidth + this.rightBaseLine, this.topBaseLine,
+                this.btnCloseWidth, this.btnCloseHeight
+            )
+        });
     }
 
     /**
@@ -106,7 +105,7 @@ export default class Liker extends Panel {
      */
     btnLikeClicked(args) {
         const that = args.self;
-        
+
         if (args.clientX >= that.offsetX + that.btnLikeLeft &&
             args.clientX <= that.offsetX + that.btnLikeLeft + that.btnLikeWidth &&
             args.clientY >= that.offsetY + that.btnLikeTop - that.gapY &&

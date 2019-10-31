@@ -72,19 +72,18 @@ export default class Ranking extends Panel {
                         this.avatarWidth,
                         this.avatarHeight);
                 })
-
-                Utils.loadImage(0, this.atlasSrc).then(data => {
-                    this.sharedCanvasContext.drawImage(
-                        data.image,
-                        this.btnCloseLeft, this.btnCloseTop, this.btnCloseWidth, this.btnCloseHeight,
-                        this.sharedCanvas.width - this.btnCloseWidth + this.rightBaseLine, this.topBaseLine,
-                        this.btnCloseWidth, this.btnCloseHeight
-                    )
-                });
                 // }
             }
-
         })
+
+        Utils.loadImage(0, this.atlasSrc).then(data => {
+            this.sharedCanvasContext.drawImage(
+                data.image,
+                this.btnCloseLeft, this.btnCloseTop, this.btnCloseWidth, this.btnCloseHeight,
+                this.sharedCanvas.width - this.btnCloseWidth + this.rightBaseLine, this.topBaseLine,
+                this.btnCloseWidth, this.btnCloseHeight
+            )
+        });
     }
 
     /**

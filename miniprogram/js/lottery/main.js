@@ -8,37 +8,6 @@ import DataBus from '../databus.js'
 let ctx = canvas.getContext('2d');
 let databus = new DataBus();
 
-//  点赞助力 KEY
-const KEY_LIKE = "1";
-
-// wx.getUserInteractiveStorage({
-//     keyList: [KEY_LIKE],
-//     success: res => {
-//         console.log(res);
-//         wx.cloud.callFunction({
-//             name: "getUserInteractiveStorage",
-//             data: {
-//                 interactive: wx.cloud.CloudID(res.cloudID),
-//                 obj: {
-//                     dump: wx.cloud.CloudID(res.cloudID)
-//                 }
-//             },
-//             success: res => {
-//                 console.log(res);
-//             },
-//             fail: err => {
-//                 console.error(err)
-//             }
-//         })
-//     },
-//     fail: err => {
-//         console.error(err);
-//     }
-// })
-
-// 排行榜 KEY
-const RANK_SCORE = "RANK_SCORE";
-
 export default class Main {
     constructor() {
         //  维护当前requestAnimationFrame的id
