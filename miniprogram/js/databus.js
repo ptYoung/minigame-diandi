@@ -28,6 +28,9 @@ export default class DataBus {
         this.animations = []; //  动画
         this.gameOver = false; //  游戏是否结束
         this.mainpages = []; //  索引页
+
+        this.systemInfo = null; //  用户系统信息
+
         this.accelerometer = {
             x: 0,
             y: 0,

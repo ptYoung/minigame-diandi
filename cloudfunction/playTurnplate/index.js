@@ -138,7 +138,7 @@ async function playTurnplate(params) {
                         index,
                         defaultPrize,
                         settings,
-                        context: params.context
+                        system: params.event
                     })
                 } else {
                     reject({
@@ -182,14 +182,32 @@ async function addTurnplateRecord(params) {
         .add({
             data: {
                 "_openid": params.openid,
-                "brand": params.context.brand,
-                "model": params.context.model,
-                "platform": params.context.platform,
-                "system": params.context.system,
+                "brand": params.system.brand,
+                "model": params.system.model,
+                "platform": params.system.platform,
+                "system": params.system.system,
                 "prizeId": params.settings.data[params.index]._id,
                 "zhuanpanId": params.zhuanpanId,
                 "currentTime": new Date()
             }
+        })
+        .then(res => {
+            console.log(res);
+            console.log(params);
+            return new Promise((resolve, reject) => {
+                if (res.errMsg === "collection.add:ok") {
+                    resolve({
+                        "index": params.index,
+                        "name": params.settings.data[params.index].name,
+                        "rank": params.settings.data[params.index].rank,
+
+                    })
+                } else {
+                    reject({
+                        "errMsg": res.errMsg
+                    })
+                }
+            });
         })
 }
 
@@ -207,23 +225,34 @@ exports.main = async(event, context) => {
     const wxContext = cloud.getWXContext()
 
     //  游戏前的检查逻辑
-    const permission = await checkGamePermission(wxContext.OPENID);
-    if (!permission.result) {
-        return {
-            errMsg: permission.errMsg
-        }
-    }
-
-    //  抽奖
-    const result = await playTurnplate({
-            zhuanpanId: permission.zhuanpanId,
-            openid: wxContext.OPENID,
-            context
+    // const permission = await checkGamePermission(wxContext.OPENID);
+    // if (!permission.result) {
+    //     return {
+    //         errMsg: permission.errMsg
+    //     }
+    // }
+    const result = await checkGamePermission(wxContext.OPENID)
+        .then(permission => {
+            return new Promise((resolve, reject) => {
+                if (permission.result) {
+                    resolve({
+                        zhuanpanId: permission.zhuanpanId,
+                        openid: wxContext.OPENID,
+                        event
+                    })
+                } else {
+                    reject({
+                        errMsg: permission.errMsg
+                    })
+                }
+            })
         })
+        .then(playTurnplate)
         .then(reducePrizeQuantity)
         .then(addTurnplateRecord)
+        .catch(err => {
+            return new Error(err.errMsg);
+        })
 
-    return {
-        result
-    }
+    return result;
 }

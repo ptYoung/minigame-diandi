@@ -16,6 +16,12 @@ const ANGLE = 360 / BLOCK;
 
 let databus = new DataBus();
 
+//  在调用云开发各 API 前，需先调用初始化方法 init 一次（全局只需一次，多次调用时只有第一次生效）
+wx.cloud.init({
+    // API 调用都保持和云函数当前所在环境一致
+    env: wx.cloud.DYNAMIC_CURRENT_ENV
+})
+
 export default class Rotary extends Sprite {
     constructor() {
         super(ROTARY_IMG_SRC, ROTARY_WIDTH, ROTARY_HEIGHT);
@@ -35,16 +41,47 @@ export default class Rotary extends Sprite {
             this.easeOut = EASE_OUT;
         }
 
+        this.play();
+
         //  模拟收到后台服务器的中奖结果消息
-        setTimeout(() => {
-            this.response = true;
-            //  目标区域
-            this.targetBlock = 2;
-        }, 100);
+        // setTimeout(() => {
+        //     this.response = true;
+        //     //  目标区域
+        //     this.targetBlock = 2;
+        // }, 100);
+    }
+
+    play() {
+        // 初始化 cloud
+        console.log(databus.systemInfo);
+        wx.cloud.callFunction({
+                name: "playTurnplate",
+                data: {
+                    brand: databus.systemInfo.brand,
+                    model: databus.systemInfo.model,
+                    platform: databus.systemInfo.platform,
+                    system: databus.systemInfo.system
+                }
+            })
+            .then(res => {
+                console.log(res);
+                //  设置指针指向的目标区域
+                if (res.result.result && res.result.result.index) {
+                    this.targetBlock = res.result.result.index;
+                } else {
+                    console.error("错误: ", res.result.errMsg, res.result.defaultPrize);
+                    this.targetBlock = res.result.defaultPrize;
+                }
+                console.log(this.targetBlock);
+                //  收到消息
+                this.response = true;
+            }).catch(err => {
+                console.log(err)
+            })
     }
 
     stop() {
-        console.log('===== stop =====', this.last)
+        // console.log('===== stop =====', this.last, this.targetBlock * ANGLE)
         this.last += this.speed;
         if (this.last >= this.targetBlock * ANGLE) {
             this.speed = 0;
@@ -54,7 +91,7 @@ export default class Rotary extends Sprite {
     }
 
     update(ctx) {
-        console.log('===== update =====', this.radian, this.speed, this.compensate);
+        // console.log('===== update =====', this.radian, this.speed, this.compensate);
         //  加速阶段
         if (this.speedUp) {
             //  未达到最大速度，继续加速
@@ -62,7 +99,7 @@ export default class Rotary extends Sprite {
                 this.speed += STEP;
                 this.radian += this.speed;
             } else {
-            //  否则，保持速度直到收到中奖结果通知
+                //  否则，保持速度直到收到中奖结果通知
                 if (this.response) {
                     //  开始减速
                     this.speedUp = false;
@@ -73,7 +110,7 @@ export default class Rotary extends Sprite {
                 }
             }
         } else {
-        //  逐渐减速阶段
+            //  逐渐减速阶段
             if (this.radian - this.speed > 0) {
                 this.radian -= this.speed;
                 if (this.speed - 1 > MIN_SPEED && (this.radian < this.easeOut * 180)) {
@@ -81,7 +118,7 @@ export default class Rotary extends Sprite {
                     this.speed--;
                 }
             } else {
-        //  转到指定区域
+                //  转到指定区域
                 this.speed = MIN_SPEED;
                 this.stop();
             }

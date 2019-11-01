@@ -1,5 +1,5 @@
 import Shooting from './shooting/main.js'
-import Lottery from './lottery/main.js'
+import Turnplate from './turnplate/main.js'
 import Ball from './ball/main.js'
 import Background from './base/background.js'
 import DataBus from './databus.js'
@@ -20,6 +20,8 @@ export default class Index {
         this.login();
         //  绘制
         this.restart();
+        //  获取系统信息
+        this.getSystemInfo();
     }
 
     /**
@@ -58,6 +60,18 @@ export default class Index {
             },
             fail: err => {
                 console.error('get openid failed with error', err)
+            }
+        })
+    }
+
+    /**
+     *  获取系统信息
+     */
+    getSystemInfo() {
+        wx.getSystemInfo({
+            success(res) {
+                console.log(res)
+                databus.systemInfo = res;
             }
         })
     }
@@ -106,7 +120,7 @@ export default class Index {
         if (number === 1) {
             new Shooting()
         } else if (number === 2) {
-            new Lottery()
+            new Turnplate()
         } else if (number === 3) {
             new Ball()
         }
