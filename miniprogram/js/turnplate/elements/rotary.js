@@ -66,17 +66,19 @@ export default class Rotary extends Sprite {
             .then(res => {
                 console.log(res);
                 //  设置指针指向的目标区域
-                if (res.result.result && res.result.result.index) {
-                    this.targetBlock = res.result.result.index;
+                if (res.result && res.result.index) {
+                    this.targetBlock = res.result.index;
                 } else {
                     console.error("错误: ", res.result.errMsg, res.result.defaultPrize);
-                    this.targetBlock = res.result.defaultPrize;
+                    this.targetBlock = 0;
                 }
                 console.log(this.targetBlock);
                 //  收到消息
                 this.response = true;
             }).catch(err => {
-                console.log(err)
+                console.error(err)
+                this.targetBlock = 0;
+                this.response = true;
             })
     }
 

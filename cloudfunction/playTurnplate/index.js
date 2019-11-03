@@ -24,6 +24,7 @@ async function checkGamePermission(openid) {
     const config = await db.collection('game_zhuanpan_config')
         .get();
 
+
     //  有效的时间范围: 当前服务器时间落入开始及结束时间之间
     const ret1 =
         config.data &&
@@ -35,7 +36,7 @@ async function checkGamePermission(openid) {
         return {
             result: false,
             errMsg: "游戏已结束"
-        }
+        };
     }
 
     //  当前用户历史参加当前大转盘的总游戏次数
@@ -51,7 +52,7 @@ async function checkGamePermission(openid) {
         return {
             result: false,
             errMsg: "下次再玩吧"
-        }
+        };
     }
 
 
@@ -82,14 +83,14 @@ async function checkGamePermission(openid) {
         return {
             result: false,
             errMsg: "明天再来玩吧"
-        }
+        };
     }
 
     return {
         result: true,
         errMsg: "OK",
         "zhuanpanId": config.data[0]._id
-    }
+    };
 }
 
 /**
@@ -225,12 +226,6 @@ exports.main = async(event, context) => {
     const wxContext = cloud.getWXContext()
 
     //  游戏前的检查逻辑
-    // const permission = await checkGamePermission(wxContext.OPENID);
-    // if (!permission.result) {
-    //     return {
-    //         errMsg: permission.errMsg
-    //     }
-    // }
     const result = await checkGamePermission(wxContext.OPENID)
         .then(permission => {
             return new Promise((resolve, reject) => {
@@ -251,7 +246,9 @@ exports.main = async(event, context) => {
         .then(reducePrizeQuantity)
         .then(addTurnplateRecord)
         .catch(err => {
-            return new Error(err.errMsg);
+            return {
+                errMsg: err.errMsg
+            };
         })
 
     return result;
