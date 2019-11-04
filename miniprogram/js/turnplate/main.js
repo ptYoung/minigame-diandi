@@ -53,6 +53,8 @@ export default class Main {
         canvas.removeEventListener('touchstart', this.touchStartEventHandler);
         //  暂停背景音乐
         // this.music.stopBgm();
+        //  重置大转盘
+        this.rotary.reset();
         //  清屏
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -103,7 +105,7 @@ export default class Main {
         databus.checkIsFingerInSpecificArea(
             e,
             this.gameinfo.rotaryArea,
-            this.rotary.reset.bind(this.rotary, this.newCanvasContext),
+            this.rotary.restart.bind(this.rotary),
             true
         )
     }
@@ -132,6 +134,14 @@ export default class Main {
         //  绘制附加功能
         this.gameinfo.renderInviteBtnArea(ctx);
         this.gameinfo.renderBackHome(ctx);
+        //  游戏结束后，绘制游戏结果
+        if (databus.gameOver) {
+            if (databus.errMsg) {
+                this.gameinfo.renderGameOver(ctx, databus.errMsg);
+            } else if (databus.prize) {
+                this.gameinfo.renderGameOver(ctx, databus.prize);
+            }
+        }
     }
 
     /**

@@ -22,15 +22,27 @@ export default class DataBus {
      */
     reset() {
         this.frame = 0;
-        this.score = 0; //  得分
+        this.gameOver = false; //  游戏是否结束
+        this.mainpages = []; //  索引页
+        /**
+         *  射击类
+         */
+        this.score = 0; //  游戏得分
         this.bullets = []; //  子弹
         this.enemies = []; //  敌军
         this.animations = []; //  动画
-        this.gameOver = false; //  游戏是否结束
-        this.mainpages = []; //  索引页
-
+        /**
+         *  抽奖类
+         */
+        this.prize = ''; //  中奖结果
+        this.errMsg = ''; //  错误提示
+        /**
+         *  用户设备信息
+         */
         this.systemInfo = null; //  用户系统信息
-
+        /**
+         *  加速计
+         */
         this.accelerometer = {
             x: 0,
             y: 0,

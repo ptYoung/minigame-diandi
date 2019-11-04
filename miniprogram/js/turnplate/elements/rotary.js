@@ -29,16 +29,27 @@ export default class Rotary extends Sprite {
         this.compensate = 0; // 补偿弧度
     }
 
-    reset(ctx) {
-        console.log('===== reset =====', databus.gameOver, this.compensate)
+    /**
+     *  重置
+     */
+    reset() {
+        this.speed = MIN_SPEED; //  转速
+        this.radian = 0; //  累计弧度
+        this.last = 0; //  最后一环
+        this.speedUp = true; //   是否加速中
+        this.response = false; //   是否收到响应
+        this.easeOut = EASE_OUT;
+        databus.errMsg = '';
+        databus.prize = '';
+    }
+
+    /**
+     *  重新开始
+     */
+    restart() {
+        console.log('===== restart =====', databus.gameOver, this.compensate)
         if (databus.gameOver) {
-            databus.gameOver = false;
-            this.speed = MIN_SPEED; //  转速
-            this.radian = 0; //  累计弧度
-            this.last = 0; //  最后一环
-            this.speedUp = true; //   是否加速中
-            this.response = false; //   是否收到响应
-            this.easeOut = EASE_OUT;
+            this.reset();
         }
 
         this.play();
@@ -47,7 +58,7 @@ export default class Rotary extends Sprite {
         // setTimeout(() => {
         //     this.response = true;
         //     //  目标区域
-        //     this.targetBlock = 2;
+        //     this.targetBlock = 9;
         // }, 100);
     }
 
@@ -67,17 +78,21 @@ export default class Rotary extends Sprite {
                 console.log(res);
                 //  设置指针指向的目标区域
                 if (res.result && res.result.index) {
+                    //  开始转动大转盘
+                    databus.gameOver = false;
+                    //  设置中奖结果
                     this.targetBlock = res.result.index;
+                    databus.prize = res.result.rank + ": " + res.result.name;
                 } else {
                     console.error("错误: ", res.result.errMsg, res.result.defaultPrize);
-                    this.targetBlock = 0;
+                    // 显示错误信息
+                    databus.errMsg = res.result.errMsg;
                 }
-                console.log(this.targetBlock);
                 //  收到消息
                 this.response = true;
             }).catch(err => {
                 console.error(err)
-                this.targetBlock = 0;
+                //  收到消息
                 this.response = true;
             })
     }
@@ -113,7 +128,7 @@ export default class Rotary extends Sprite {
             }
         } else {
             //  逐渐减速阶段
-            if (this.radian - this.speed > 0) {
+            if (this.radian > this.speed) {
                 this.radian -= this.speed;
                 if (this.speed - 1 > MIN_SPEED && (this.radian < this.easeOut * 180)) {
                     this.easeOut /= 2;

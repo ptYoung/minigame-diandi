@@ -1,3 +1,6 @@
+/**
+ *  加载图像
+ */
 function loadImage(index, imgSrc) {
     return new Promise((resolve, reject) => {
         const img = wx.createImage();

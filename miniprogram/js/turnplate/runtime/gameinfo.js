@@ -31,7 +31,7 @@ export default class GameInfo extends Runtime {
         ctx.font = "20px Arial"
 
         ctx.drawImage(
-            this. atlas,
+            this.atlas,
             120, 6, 39, 24,
             100, 60, 120, 40
         )
@@ -41,5 +41,44 @@ export default class GameInfo extends Runtime {
             120,
             85
         )
+    }
+
+    /**
+     *  绘制结果
+     */
+    renderGameOver(ctx, result) {
+        ctx.drawImage(
+            this.atlas,
+            0, 0, 119, 108,
+            this.screenWidth / 2 - 150, this.screenHeight / 2 - 100, 300, 300);
+
+        ctx.fillStyle = "#ffffff"
+        ctx.font = "20px Arial"
+
+        ctx.fillText(
+            '游戏结束',
+            this.screenWidth / 2 - 40,
+            this.screenHeight / 2 - 100 + 50
+        )
+
+        ctx.fillText(
+            result,
+            this.screenWidth / 2 - 30,
+            this.screenHeight / 2 - 100 + 145
+        )
+
+        // ctx.drawImage(
+        //     this.atlas,
+        //     120, 6, 39, 24,
+        //     this.screenWidth / 2 - 60,
+        //     this.screenHeight / 2 - 100 + 180,
+        //     120, 40
+        // )
+
+        // ctx.fillText(
+        //     '重新开始',
+        //     this.screenWidth / 2 - 40,
+        //     this.screenHeight / 2 - 100 + 205
+        // )
     }
 }

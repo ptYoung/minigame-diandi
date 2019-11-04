@@ -104,6 +104,7 @@ async function playTurnplate(params) {
         .get()
         .then(settings => {
             //  是否配置缺省奖项，当中奖的奖品数不足时，提供缺省奖项
+            console.log(settings);
             const defaultPrize = settings.data.find(item => {
                 if (item.default === 1) {
                     return true;
@@ -136,7 +137,8 @@ async function playTurnplate(params) {
                     resolve({
                         zhuanpanId: params.zhuanpanId,
                         openid: params.openid,
-                        index,
+                        index: settings.data[index].index,
+                        inner: index,
                         defaultPrize,
                         settings,
                         system: params.event
@@ -187,7 +189,9 @@ async function addTurnplateRecord(params) {
                 "model": params.system.model,
                 "platform": params.system.platform,
                 "system": params.system.system,
-                "prizeId": params.settings.data[params.index]._id,
+                "prizeId": params.settings.data[params.inner]._id,
+                "name": params.settings.data[params.inner].name,
+                "rank": params.settings.data[params.inner].rank,
                 "zhuanpanId": params.zhuanpanId,
                 "currentTime": new Date()
             }
@@ -199,9 +203,8 @@ async function addTurnplateRecord(params) {
                 if (res.errMsg === "collection.add:ok") {
                     resolve({
                         "index": params.index,
-                        "name": params.settings.data[params.index].name,
-                        "rank": params.settings.data[params.index].rank,
-
+                        "name": params.settings.data[params.inner].name,
+                        "rank": params.settings.data[params.inner].rank
                     })
                 } else {
                     reject({
