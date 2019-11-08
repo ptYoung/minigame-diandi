@@ -3,6 +3,7 @@ import Turnplate from './turnplate/main.js'
 import Ball from './ball/main.js'
 import Background from './base/background.js'
 import DataBus from './databus.js'
+import Utils from './base/helper.js'
 
 let ctx = canvas.getContext('2d');
 let databus = new DataBus();
@@ -28,12 +29,33 @@ export default class Index {
      *  登录
      */
     login() {
-        // 获取 openid
-        wx.cloud.callFunction({
-            name: 'login',
-            success: res => {
-                // console.log(res);
+        Utils.login()
+            //  准备云函数 login 的参数
+            .then(res => {
+                return new Promise((resolve, reject) => {
+                    resolve({
+                        name: "login",
+                        data: {
+                            code: res.code
+                        }
+                    })
+                })
+            })
+            .then(Utils.callCloudFunction)
+            .then(res => {
+                console.log(res)
+                //  获取登录用户openid
                 window.openid = res.result.openid
+
+                console.log(res.result.stats)
+
+                if (res.result.stats.created === 1) {
+                    //  首次登录
+                    //  ....
+                } else {
+                    //  ....
+                }
+
                 //  获取场景值 
                 const scenario = wx.getLaunchOptionsSync();
                 console.log(scenario)
@@ -56,12 +78,10 @@ export default class Index {
                         likeOpenid: scenario.query.user
                     });
                 }
-
-            },
-            fail: err => {
-                console.error('get openid failed with error', err)
-            }
-        })
+            })
+            .catch(err => {
+                console.error(err);
+            })
     }
 
     /**

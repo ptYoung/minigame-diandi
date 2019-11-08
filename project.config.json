@@ -20,7 +20,7 @@
 		}
 	},
 	"compileType": "game",
-	"libVersion": "2.9.1",
+	"libVersion": "2.9.2",
 	"appid": "wxa0722dc1d331e6bf",
 	"projectname": "minigame-diandi",
 	"miniprogramRoot": "miniprogram/",

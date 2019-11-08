@@ -199,9 +199,9 @@ class OpenDataContext {
 // })
 
 // reduceMyGameNumber('MY_TURNPLATE_NUMBER');
-getMyGameNumber('MY_TURNPLATE_NUMBER', gameNumbers => {
-    console.log(gameNumbers)
-});
+// getMyGameNumber('MY_TURNPLATE_NUMBER', gameNumbers => {
+//     console.log(gameNumbers)
+// });
 
 new OpenDataContext().listen();
 

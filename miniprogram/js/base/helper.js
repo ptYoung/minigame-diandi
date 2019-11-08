@@ -30,7 +30,54 @@ function getBezierCurve(partition, startX, startY, controlX, controlY, endX, end
     }; //返回坐标位置
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//                                      
+//                              小游戏端API封装
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  云函数
+ */
+function callCloudFunction(request) {
+    return new Promise((resolve, reject) => {
+        wx.cloud.callFunction({
+            name: request.name,
+            data: request.data,
+            config: request.config,
+            success: res => {
+                resolve(res);
+            },
+            fail: err => {
+                reject(err);
+            }
+        })
+    })
+}
+
+/**
+ *  登录 
+ */
+function login() {
+    return new Promise((resolve, reject) => {
+        wx.login({
+            success: res => {
+                if (res.errMsg === "login:ok") {
+                    resolve(res);
+                } else {
+                    reject(res);
+                }
+            },
+            fail: err => {
+                reject(err);
+            }
+        })
+    })
+}
+
 module.exports = {
+    callCloudFunction: callCloudFunction,
+    login: login,
     getNonceStr: getNonceStr,
     getBezierCurve: getBezierCurve
 }
